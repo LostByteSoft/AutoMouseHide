@@ -5,50 +5,62 @@
 ;;	All files must be in same folder. Where you want.
 ;;	64 bit AHK version : 1.1.24.2 64 bit Unicode
 
-	SetEnv, title, Move Mouse
-	SetEnv, mode, Auto Move Hide Mouse
-	SetEnv, version, Version 2017-08-19-1658
-	SetEnv, Author, LostByteSoft
-
 ;;--- Softwares options ---
 
 	#NoEnv
 	#SingleInstance Force
 	#Persistent
 	SetWorkingDir %A_ScriptDir%
+
+	SetEnv, title, Move Mouse
+	SetEnv, mode, Auto Move Hide Mouse
+	SetEnv, version, Version 2017-09-21-0831
+	SetEnv, Author, LostByteSoft
 	SetEnv, sleep, 10
 	SetEnv, speed, 10
+	SetEnv, pause, 0
 
 	FileInstall, ico_AutoMouseHide.ico, ico_AutoMouseHide.ico, 0
 	FileInstall, ico_shut.ico, ico_shut.ico, 0
 	FileInstall, ico_pause.ico, ico_pause.ico, 0
+	FileInstall, ico_lock.ico, ico_lock.ico, 0
 
 ;;--- Tray options ---
 
 	Menu, Tray, NoStandard
 	Menu, tray, add, --= %title% =--, about1
 	Menu, Tray, Icon, --= %title% =--, ico_AutoMouseHide.ico
+	Menu, tray, add, Show logo, GuiLogo
+	Menu, tray, add, Secret MsgBox, secret			; Secret MsgBox, just show all options and variables of the program
+	Menu, Tray, Icon, Secret MsgBox, ico_lock.ico
+	Menu, tray, add, About %author%, about2			; about author
+	Menu, Tray, Icon, About %author%, ico_about.ico
+	Menu, tray, add, %Version%, about3			; About version
+	Menu, Tray, Icon, %Version%, ico_about.ico
+	Menu, tray, add,
 	Menu, tray, add, Exit %title%, Exit
 	Menu, Tray, Icon, Exit %title%, ico_shut.ico
-	Menu, tray, add, Show logo, GuiLogo
-	Menu, tray, add,				; About version, create line
-	Menu, tray, add, Change Time, sleep		; Change wait time
-	Menu, tray, add, Change Speed, speed		; Change move speed
-	Menu, tray, add, Show Time && Speed, showinfo	; Show infos
-	Menu, tray, add,				; About version, create line
-	Menu, tray, add, About, about2			; Creates a new menu item
-	Menu, tray, add, Version, version		; About version
 	Menu, tray, add,
-	Menu, tray, add, Pause script, pause
-	Menu, Tray, Icon, Pause script, ico_pause.ico
-	Menu, Tray, Tip, %title% - sleep=%sleep% - speed=%speed%
+	Menu, tray, add, Change Time, sleep			; Change wait time
+	Menu, Tray, Icon, Change Time, ico_time.ico
+	Menu, tray, add, Change Speed, speed			; Change move speed
+	Menu, Tray, Icon, Change Speed, ico_about.ico
+	Menu, tray, add, Show Time && Speed, showinfo		; Show infos
+	Menu, tray, add,
+	Menu, tray, add, Pause script (Toggle), pause
+	Menu, Tray, Icon, Pause script (Toggle), ico_pause.ico
+	Menu, tray, add,
+	;; Menu, Tray, Tip, %title% - sleep=%sleep% - speed=%speed%
 
 ;;--- Software start here ---
 
 	; TrayTip, %title%, %mode% : %sleep% Sec. %speed% Spd., 2, 1
 
 loop:
+	Menu, Tray, Tip, %title% - sleep=%sleep% - speed=%speed%
+	IfEqual, pause, 1, Goto, skipicon
 	Menu, Tray, Icon, ico_AutoMouseHide.ico
+	skipicon:
 	SysGet, Mon1, Monitor, 1		; sysget here, just in case resolution change
 	MouseGetPos, MouseX1, MouseY1
 	sleep, %sleep%000
@@ -69,6 +81,7 @@ y:
 	goto, loop
 
 hide:
+	IfEqual, pause, 1, Goto, loop
 	CoordMode, Mouse, Screen
 	MouseMove, %Mon1Right%, 19, %speed%	; 19 is under the X button , is you specify lower value some info can by appear
 	sleep, %sleep%000
@@ -99,16 +112,19 @@ speed:
 	goto, loop
 
 pause:
-	Menu, Tray, Icon, ico_pause.ico, , 1
-	Pause, Toggle
-	;Menu, Tray, Icon, ico_pause.ico
-	Return
+	Ifequal, pause, 0, goto, paused
+	Ifequal, pause, 1, goto, unpaused
+	Goto, pause
 
-GuiLogo:
-	Gui, Add, Picture, x25 y25 w400 h400 , ico_AutoMouseHide.ico
-	Gui, Show, w450 h450, %title% Logo
-	Gui, Color, 000000
-	return
+	paused:
+	Menu, Tray, Icon, ico_pause.ico
+	SetEnv, pause, 1
+	goto, loop
+
+	unpaused:	
+	Menu, Tray, Icon, ico_time.ico
+	SetEnv, pause, 0
+	Goto, loop
 
 ;;--- Quit ---
 
@@ -117,14 +133,14 @@ Exit:
 
 ;;--- Tray Bar (must be at end of file) ---
 
-;changesleep:
-;	goto, sleep
-
-;changespeed:
-;	goto, speed
+secret:
+	MouseGetPos, MouseX1, MouseY1
+	MsgBox, 64, %title%,All variables is shown here.`n`nTitle=%title% mode=%mode% version=%version% author=%author% A_WorkingDir=%A_WorkingDir%`n`nSleep=%sleep% speed=%speed% pause=%pause%`n`nMouse is MouseX1=%MouseX1% MouseY1=%MouseY1%
+	Return
 
 about1:
 about2:
+about3:
 	TrayTip, %title%, %mode% : Time: %sleep% Speed: %speed%, 2, 1
 	Return
 
@@ -135,6 +151,12 @@ version:
 showinfo:
 	TrayTip, %title%, Time: %sleep% Speed: %speed%, 2, 3
 	Return
+
+GuiLogo:
+	Gui, Add, Picture, x25 y25 w400 h400 , ico_AutoMouseHide.ico
+	Gui, Show, w450 h450, %title% Logo
+	;Gui, Color, 000000
+	return
 
 ;;--- End of script ---
 ;
