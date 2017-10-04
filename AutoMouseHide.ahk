@@ -1,91 +1,97 @@
 ;;--- Head (informations) ---
+
 ;;	AHK script
 ;;	Auto hide mouse cursor after 10 seconds (default) of inactivity and reappear at the last place when you move the mouse.
 ;;	Compatibility: Windows
 ;;	All files must be in same folder. Where you want.
 ;;	64 bit AHK version : 1.1.24.2 64 bit Unicode
+;;
+;;	There a way here to HIDE cursor: https://autohotkey.com/docs/commands/DllCall.htm#HideCursor
 
 ;;--- Softwares options ---
 
+	SetWorkingDir %A_ScriptDir%
 	#NoEnv
 	#SingleInstance Force
 	#Persistent
-	SetWorkingDir %A_ScriptDir%
 
 	SetEnv, title, Move Mouse
 	SetEnv, mode, Auto Move Hide Mouse
-	SetEnv, version, Version 2017-09-21-0831
+	SetEnv, version, Version 2017-10-04-1602
 	SetEnv, Author, LostByteSoft
+	SetEnv, logoicon, ico_AutoMouseHide.ico
 	SetEnv, sleep, 10
-	SetEnv, speed, 10
+	SetEnv, speed, 5
 	SetEnv, pause, 0
+	SetEnv, pixel, 22					; 19 is under the X button , is you specify lower value info appear, 19 is not enough some times so i put 22.
 
 	FileInstall, ico_AutoMouseHide.ico, ico_AutoMouseHide.ico, 0
 	FileInstall, ico_shut.ico, ico_shut.ico, 0
 	FileInstall, ico_pause.ico, ico_pause.ico, 0
 	FileInstall, ico_lock.ico, ico_lock.ico, 0
 
+	SysGet, Mon1, Monitor, 1				; sysget here, just in case resolution change
+
 ;;--- Tray options ---
 
 	Menu, Tray, NoStandard
-	Menu, tray, add, --= %title% =--, about1
-	Menu, Tray, Icon, --= %title% =--, ico_AutoMouseHide.ico
+	Menu, tray, add, ---=== %title% ===---, about
+	Menu, Tray, Icon, ---=== %title% ===---, %logoicon%
 	Menu, tray, add, Show logo, GuiLogo
 	Menu, tray, add, Secret MsgBox, secret			; Secret MsgBox, just show all options and variables of the program
 	Menu, Tray, Icon, Secret MsgBox, ico_lock.ico
-	Menu, tray, add, About %author%, about2			; about author
-	Menu, Tray, Icon, About %author%, ico_about.ico
-	Menu, tray, add, %Version%, about3			; About version
-	Menu, Tray, Icon, %Version%, ico_about.ico
+	Menu, tray, add, About && ReadMe, author
+	Menu, Tray, Icon, About && ReadMe, ico_about.ico
+	Menu, tray, add, Author %author%, about
+	menu, tray, disable, Author %author%
+	Menu, tray, add, %version%, about
+	menu, tray, disable, %version%
 	Menu, tray, add,
-	Menu, tray, add, Exit %title%, Exit
-	Menu, Tray, Icon, Exit %title%, ico_shut.ico
+	Menu, tray, add, Exit, Close				; Close exit program
+	Menu, Tray, Icon, Exit, ico_shut.ico
 	Menu, tray, add,
+	Menu, tray, add, --== Option(s) ==--, about
 	Menu, tray, add, Change Time, sleep			; Change wait time
-	Menu, Tray, Icon, Change Time, ico_time.ico
 	Menu, tray, add, Change Speed, speed			; Change move speed
-	Menu, Tray, Icon, Change Speed, ico_about.ico
-	Menu, tray, add, Show Time && Speed, showinfo		; Show infos
+	Menu, tray, add, Change Pixel, pixel
 	Menu, tray, add,
+	Menu, tray, add, Show Time && Speed && Pixel, showinfo		; Show infos
 	Menu, tray, add, Pause script (Toggle), pause
 	Menu, Tray, Icon, Pause script (Toggle), ico_pause.ico
 	Menu, tray, add,
-	;; Menu, Tray, Tip, %title% - sleep=%sleep% - speed=%speed%
 
 ;;--- Software start here ---
 
-	; TrayTip, %title%, %mode% : %sleep% Sec. %speed% Spd., 2, 1
-
 loop:
-	Menu, Tray, Tip, %title% - sleep=%sleep% - speed=%speed%
+	Menu, Tray, Tip, %title% - sleep=%sleep% - speed=%speed% - pixel=%pixel%
 	IfEqual, pause, 1, Goto, skipicon
 	Menu, Tray, Icon, ico_AutoMouseHide.ico
 	skipicon:
-	SysGet, Mon1, Monitor, 1		; sysget here, just in case resolution change
 	MouseGetPos, MouseX1, MouseY1
 	sleep, %sleep%000
 	MouseGetPos, MouseX2, MouseY2
 
 x:
-	sleep, 500
+	sleep, 250
 	if ("" MouseX1 = MouseX2)
-	goto, y
+		goto, y
 	else
-	goto, loop
+		goto, loop
 
 y:
-	sleep, 500
+	sleep, 250
 	if ("" MouseY1 = MouseY2)
-	goto, hide
+		goto, hide
 	else
-	goto, loop
+		goto, loop
 
 hide:
 	IfEqual, pause, 1, Goto, loop
 	CoordMode, Mouse, Screen
-	MouseMove, %Mon1Right%, 19, %speed%	; 19 is under the X button , is you specify lower value some info can by appear
+	MouseMove, %Mon1Right%, %pixel%, %speed%		; 19 is under the X button , is you specify lower value some info can by appear, 19 is not enough some times.
 	sleep, %sleep%000
 	goto, loop
+
 
 ; --- Options ---
 
@@ -126,22 +132,41 @@ pause:
 	SetEnv, pause, 0
 	Goto, loop
 
-;;--- Quit ---
+pixel:
+	InputBox, newpixel, WMC Mouse Hide, Change the pixel to up to screen ? Between 0 to %Mon1Bottom% pixels (Now pixel is %pixel%), , , , , , , 20, Enter number
+		if ErrorLevel
+			goto, loop
+	IfEqual, newpixel, , Goto, pixel
+	IfEqual, newpixel, Enter number, Goto, pixel
+	IfLess, newpixel, 0, Goto, pixel
+	IfGreater, newpixel, %Mon1Bottom%, Goto, pixel
+	SetEnv, pixel, %newpixel%
+	goto, loop
 
-Exit:
+;;--- Quit & Reload ---
+
+doReload:
+	Reload
+
+Close:
+	ExitApp
+
+; Escape::		; Debug purpose or quit when press esc
 	ExitApp
 
 ;;--- Tray Bar (must be at end of file) ---
 
 secret:
 	MouseGetPos, MouseX1, MouseY1
-	MsgBox, 64, %title%,All variables is shown here.`n`nTitle=%title% mode=%mode% version=%version% author=%author% A_WorkingDir=%A_WorkingDir%`n`nSleep=%sleep% speed=%speed% pause=%pause%`n`nMouse is MouseX1=%MouseX1% MouseY1=%MouseY1%
+	MsgBox, 48, %title%,All variables is shown here.`n`nTitle=%title% mode=%mode% version=%version% author=%author% A_WorkingDir=%A_WorkingDir%`n`nSleep=%sleep% speed=%speed% pause=%pause% pixel=%pixel%`n`nMouse is MouseX1=%MouseX1% MouseY1=%MouseY1%
 	Return
 
-about1:
-about2:
-about3:
+about:
 	TrayTip, %title%, %mode% : Time: %sleep% Speed: %speed%, 2, 1
+	Return
+
+author:
+	MsgBox, 64, %title%, %title% %mode% %version% %author%. This software is usefull to auto move the mouse somewhere is not visible (Right top corner -%pixel% px).`n`n`tGo to https://github.com/LostByteSoft
 	Return
 
 version:
@@ -149,13 +174,13 @@ version:
 	Return
 
 showinfo:
-	TrayTip, %title%, Time: %sleep% Speed: %speed%, 2, 3
+	TrayTip, %title%, Time: %sleep% Speed: %speed% Pixel: %pixel%, 2, 3
 	Return
 
 GuiLogo:
-	Gui, Add, Picture, x25 y25 w400 h400 , ico_AutoMouseHide.ico
+	Gui, Add, Picture, x25 y25 w400 h400 , %logoicon%
 	Gui, Show, w450 h450, %title% Logo
-	;Gui, Color, 000000
+	; Gui, Color, 000000
 	return
 
 ;;--- End of script ---
