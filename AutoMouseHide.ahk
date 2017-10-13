@@ -1,12 +1,10 @@
 ;;--- Head (informations) ---
 
 ;;	AHK script
-;;	Auto hide mouse cursor after 10 seconds (default) of inactivity and reappear at the last place when you move the mouse.
+;;	Auto move to hide mouse cursor, in the top right corner, after 10 seconds (default) of inactivity.
 ;;	Compatibility: Windows
 ;;	All files must be in same folder. Where you want.
 ;;	64 bit AHK version : 1.1.24.2 64 bit Unicode
-;;
-;;	There a way here to HIDE cursor: https://autohotkey.com/docs/commands/DllCall.htm#HideCursor
 
 ;;--- Softwares options ---
 
@@ -17,20 +15,22 @@
 
 	SetEnv, title, Move Mouse
 	SetEnv, mode, Auto Move Hide Mouse
-	SetEnv, version, Version 2017-10-04-1602
+	SetEnv, version, Version 2017-10-13-1939
 	SetEnv, Author, LostByteSoft
 	SetEnv, logoicon, ico_AutoMouseHide.ico
+	SetEnv, hidetray, 0
+	SetEnv, debug, 0
 	SetEnv, sleep, 10
-	SetEnv, speed, 5
+	SetEnv, speed, 10
 	SetEnv, pause, 0
 	SetEnv, pixel, 22					; 19 is under the X button , is you specify lower value info appear, 19 is not enough some times so i put 22.
+	Sleep -= 3
 
 	FileInstall, ico_AutoMouseHide.ico, ico_AutoMouseHide.ico, 0
 	FileInstall, ico_shut.ico, ico_shut.ico, 0
 	FileInstall, ico_pause.ico, ico_pause.ico, 0
 	FileInstall, ico_lock.ico, ico_lock.ico, 0
-
-	SysGet, Mon1, Monitor, 1				; sysget here, just in case resolution change
+	FileInstall, ico_options.ico, ico_options.ico, 0
 
 ;;--- Tray options ---
 
@@ -51,9 +51,12 @@
 	Menu, Tray, Icon, Exit, ico_shut.ico
 	Menu, tray, add,
 	Menu, tray, add, --== Option(s) ==--, about
+	Menu, Tray, Icon, --== Option(s) ==--, ico_options.ico
 	Menu, tray, add, Change Time, sleep			; Change wait time
 	Menu, tray, add, Change Speed, speed			; Change move speed
 	Menu, tray, add, Change Pixel, pixel
+	Menu, tray, add, Set Debug mode (Toggle), debug
+	Menu, tray, add, Hide the mouse, hidetray
 	Menu, tray, add,
 	Menu, tray, add, Show Time && Speed && Pixel, showinfo		; Show infos
 	Menu, tray, add, Pause script (Toggle), pause
@@ -63,33 +66,68 @@
 ;;--- Software start here ---
 
 loop:
+	SetEnv, hidetray, 0
+	IfEqual, debug, 1
+			MsgBox, 0, %title%, Loop sleep=%sleep% (default is 10 but Sleep is -3 because timer in script) Var exist if hide one time`n`tMouseX5=%MouseX5% MouseY5=%MouseY5%, 5
+	SysGet, Mon1, Monitor, 1				; sysget here, just in case resolution change
 	Menu, Tray, Tip, %title% - sleep=%sleep% - speed=%speed% - pixel=%pixel%
 	IfEqual, pause, 1, Goto, skipicon
 	Menu, Tray, Icon, ico_AutoMouseHide.ico
 	skipicon:
+	MouseGetPos, MouseX4, MouseY4
+	sleep, 1000
+	if ("" MouseX5 = MouseX4)
+		goto, loop
+	else
+		goto, Detection
+
+Detection:
 	MouseGetPos, MouseX1, MouseY1
+	IfEqual, debug, 1
+			MsgBox, 0, %title%, Detection`n`tMouseX1=%MouseX1% MouseY1=%MouseY1%, 5
 	sleep, %sleep%000
 	MouseGetPos, MouseX2, MouseY2
-
-x:
-	sleep, 250
+	sleep, 1000
 	if ("" MouseX1 = MouseX2)
-		goto, y
+		goto, double
 	else
 		goto, loop
 
-y:
-	sleep, 250
-	if ("" MouseY1 = MouseY2)
+double:
+	IfEqual, debug, 1
+			MsgBox, 0, %title%, Double`n`tMouseX2=%MouseX2% MouseY2=%MouseY2%, 5
+	sleep, 1000
+	MouseGetPos, MouseX2, MouseY3
+	if ("" MouseY1 = MouseY3)
 		goto, hide
 	else
 		goto, loop
 
+hidetray:
+	SetEnv, hidetray, 1
+
 hide:
-	IfEqual, pause, 1, Goto, loop
+	;; Before it hide it check if the mouse is on 0x0 y0 (no mouse) return to loop if no mouse NOT IMPLEMENTED
+	IfEqual, debug, 1
+			MsgBox, 0, %title%, Hide`n`tMouseX1=%MouseX1% MouseY1=%MouseY1% = MouseX2=%MouseX2% MouseY2=%MouseY2% = MouseX2=%MouseX2% MouseY3=%MouseY3%,5
+	;; Go to right side before go to up. (Some bugs caused by the mouse passing by text in wmc)
+	;; MsgBox, Ecran 1 Left: %Mon1Left% -- Top: %Mon1Top% -- Right: %Mon1Right% -- Bottom %Mon1Bottom%...
 	CoordMode, Mouse, Screen
-	MouseMove, %Mon1Right%, %pixel%, %speed%		; 19 is under the X button , is you specify lower value some info can by appear, 19 is not enough some times.
-	sleep, %sleep%000
+	SetEnv, RightCenter, %Mon1bottom%
+	RightCenter /=  2
+	SetEnv, sleep2, speed
+	Sleep2 /= 2
+	;; msgbox, Mon1bottom=%Mon1bottom% - rightcenter=%RightCenter% - speed=%speed% - sleep2=%sleep2%
+	IfEqual, pause, 1, Goto, loop
+	IfEqual, debug, 1, tooltip, The mouse move. Follow Me., % mx+25, % my-25, 19
+	MouseMove, %Mon1Right%, %RightCenter%, %speed%		; 19 is under the X button , is you specify lower value some info can by appear, 19 is not enough some times.
+	sleep, %sleep2%000
+	IfEqual, debug, 1, tooltip, The mouse move. Right center., % mx+25, % my-25, 19
+	MouseMove, %Mon1Right%, %pixel%, 2
+	sleep, 2000
+	MouseGetPos, MouseX5, MouseY5
+	IfEqual, debug, 1, tooltip, The mouse move. Top right - %pixel%., % mx+25, % my-25, 19
+	IfEqual, hidetray, 1, tooltip, I'm here - %pixel%., % mx+25, % my-25, 19
 	goto, loop
 
 
@@ -104,6 +142,7 @@ sleep:
 	IfLess, newtime, 3, Goto, sleep
 	IfGreater, newtime, 240, Goto, sleep
 	SetEnv, sleep, %newtime%
+	Sleep -= 3
 	goto, loop
 
 speed:
@@ -143,6 +182,18 @@ pixel:
 	SetEnv, pixel, %newpixel%
 	goto, loop
 
+Debug:
+	IfEqual, debug, 0, goto, enable
+	IfEqual, debug, 1, goto, disable
+
+	enable:
+	SetEnv, debug, 1
+	Goto, loop
+
+	disable:
+	SetEnv, debug, 0
+	Goto, loop
+
 ;;--- Quit & Reload ---
 
 doReload:
@@ -157,8 +208,9 @@ Close:
 ;;--- Tray Bar (must be at end of file) ---
 
 secret:
+	SysGet, Mon1, Monitor, 1				; sysget here, just in case resolution change
 	MouseGetPos, MouseX1, MouseY1
-	MsgBox, 48, %title%,All variables is shown here.`n`nTitle=%title% mode=%mode% version=%version% author=%author% A_WorkingDir=%A_WorkingDir%`n`nSleep=%sleep% speed=%speed% pause=%pause% pixel=%pixel%`n`nMouse is MouseX1=%MouseX1% MouseY1=%MouseY1%
+	MsgBox, 48, %title%,All variables is shown here.`n`nTitle=%title% mode=%mode% version=%version% author=%author% A_WorkingDir=%A_WorkingDir%`n`nSleep=%sleep% speed=%speed% pause=%pause% pixel=%pixel%`n`nMouse is MouseX1=%MouseX1% MouseY1=%MouseY1% and move to %Mon1Right% %pixel%.
 	Return
 
 about:
@@ -166,7 +218,7 @@ about:
 	Return
 
 author:
-	MsgBox, 64, %title%, %title% %mode% %version% %author%. This software is usefull to auto move the mouse somewhere is not visible (Right top corner -%pixel% px).`n`n`tGo to https://github.com/LostByteSoft
+	MsgBox, 64, %title%, %title% %mode% %version% %author%. This software is usefull to auto move the mouse somewhere is not visible (Right top corner -%pixel% px).In pause mode all the script is running exect doesn't move the mouse.`n`n`tGo to https://github.com/LostByteSoft
 	Return
 
 version:
