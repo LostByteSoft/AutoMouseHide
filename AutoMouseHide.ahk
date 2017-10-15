@@ -15,12 +15,13 @@
 
 	SetEnv, title, Move Mouse
 	SetEnv, mode, Auto Move Hide Mouse
-	SetEnv, version, Version 2017-10-13-1939
+	SetEnv, version, Version 2017-10-14-0905
 	SetEnv, Author, LostByteSoft
 	SetEnv, logoicon, ico_AutoMouseHide.ico
 	SetEnv, hidetray, 0
 	SetEnv, debug, 0
 	SetEnv, sleep, 10
+	SetEnv, sleep2, 10
 	SetEnv, speed, 10
 	SetEnv, pause, 0
 	SetEnv, pixel, 22					; 19 is under the X button , is you specify lower value info appear, 19 is not enough some times so i put 22.
@@ -31,6 +32,7 @@
 	FileInstall, ico_pause.ico, ico_pause.ico, 0
 	FileInstall, ico_lock.ico, ico_lock.ico, 0
 	FileInstall, ico_options.ico, ico_options.ico, 0
+	FileInstall, ico_reboot.ico, ico_reboot.ico, 0
 
 ;;--- Tray options ---
 
@@ -49,15 +51,16 @@
 	Menu, tray, add,
 	Menu, tray, add, Exit, Close				; Close exit program
 	Menu, Tray, Icon, Exit, ico_shut.ico
+	Menu, tray, add, Refresh, doReload				; Reload the script. Usefull if you change something in configuration
+	Menu, Tray, Icon, Refresh, ico_reboot.ico
+	Menu, tray, add, Set Debug mode (Toggle), debug
 	Menu, tray, add,
 	Menu, tray, add, --== Option(s) ==--, about
 	Menu, Tray, Icon, --== Option(s) ==--, ico_options.ico
 	Menu, tray, add, Change Time, sleep			; Change wait time
 	Menu, tray, add, Change Speed, speed			; Change move speed
 	Menu, tray, add, Change Pixel, pixel
-	Menu, tray, add, Set Debug mode (Toggle), debug
 	Menu, tray, add, Hide the mouse, hidetray
-	Menu, tray, add,
 	Menu, tray, add, Show Time && Speed && Pixel, showinfo		; Show infos
 	Menu, tray, add, Pause script (Toggle), pause
 	Menu, Tray, Icon, Pause script (Toggle), ico_pause.ico
@@ -68,9 +71,9 @@
 loop:
 	SetEnv, hidetray, 0
 	IfEqual, debug, 1
-			MsgBox, 0, %title%, Loop sleep=%sleep% (default is 10 but Sleep is -3 because timer in script) Var exist if hide one time`n`tMouseX5=%MouseX5% MouseY5=%MouseY5%, 5
+			MsgBox, 0, %title%, Loop sleep=%sleep% (default is 10 but Sleep is -3 because timer in script)`n`nVar exist if hide one time`n`tMouseX5=%MouseX5% MouseY5=%MouseY5%, 5
 	SysGet, Mon1, Monitor, 1				; sysget here, just in case resolution change
-	Menu, Tray, Tip, %title% - sleep=%sleep% - speed=%speed% - pixel=%pixel%
+	Menu, Tray, Tip, %title% - sleep=%sleep2% - speed=%speed% - pixel=%pixel%
 	IfEqual, pause, 1, Goto, skipicon
 	Menu, Tray, Icon, ico_AutoMouseHide.ico
 	skipicon:
@@ -142,6 +145,7 @@ sleep:
 	IfLess, newtime, 3, Goto, sleep
 	IfGreater, newtime, 240, Goto, sleep
 	SetEnv, sleep, %newtime%
+	SetEnv, sleep2, %newtime%
 	Sleep -= 3
 	goto, loop
 
@@ -196,14 +200,16 @@ Debug:
 
 ;;--- Quit & Reload ---
 
-doReload:
-	Reload
-
 Close:
 	ExitApp
 
 ; Escape::		; Debug purpose or quit when press esc
 	ExitApp
+
+doReload:
+	Reload
+	sleep, 100
+	goto, Close
 
 ;;--- Tray Bar (must be at end of file) ---
 
