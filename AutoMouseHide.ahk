@@ -15,7 +15,7 @@
 
 	SetEnv, title, Move Mouse
 	SetEnv, mode, Auto Move Hide Mouse
-	SetEnv, version, Version 2017-10-23-0810
+	SetEnv, version, Version 2017-10-23-0822
 	SetEnv, Author, LostByteSoft
 	SetEnv, logoicon, ico_AutoMouseHide.ico
 	SetEnv, hidetray, 0
@@ -66,12 +66,10 @@
 	Menu, tray, add, Change Time, sleep				; Change wait time
 	Menu, tray, add, Change Speed, speed				; Change move speed
 	Menu, tray, add, Change Pixel, pixel
+	Menu, tray, add, Show Time && Speed && Pixel, showinfo		; Show infos
+	Menu, tray, add,
 	Menu, tray, add, Hide the mouse, hidetray
 	Menu, Tray, Icon, Hide the mouse, %logoicon%
-	Menu, tray, add, Show Time && Speed && Pixel, showinfo		; Show infos
-	Menu, tray, add, Pause script (Toggle), pause
-	Menu, Tray, Icon, Pause script (Toggle), ico_pause.ico
-	Menu, tray, add,
 
 ;; --- Software start here ---
 
@@ -225,7 +223,7 @@ doReload:
 secret:
 	SysGet, Mon1, Monitor, 1		; sysget here, just in case resolution change
 	MouseGetPos, MouseX1, MouseY1
-	MsgBox, 48, %title%,All variables is shown here.`n`nTitle=%title% mode=%mode% version=%version% author=%author% A_WorkingDir=%A_WorkingDir%`n`nSleep=%sleep% speed=%speed% pause=%pause% pixel=%pixel%`n`nMouse is MouseX1=%MouseX1% MouseY1=%MouseY1% and move to %Mon1Right% %pixel%.
+	MsgBox, 48, %title%,All variables is shown here.`n`nTitle=%title% mode=%mode% version=%version% author=%author% A_WorkingDir=%A_WorkingDir%`n`nSleep=%sleep% speed=%speed% pause=%pause% pixel=%pixel%`n`nMouse is MouseX1=%MouseX1% MouseY1=%MouseY1% and move to %Mon1Right% x %pixel%.
 	Return
 
 about:
@@ -241,7 +239,7 @@ version:
 	Return
 
 showinfo:
-	TrayTip, %title%, Time: %sleep% Speed: %speed% Pixel: %pixel%, 2, 3
+	TrayTip, %title%, Time: %sleep% Speed: %speed% Pixel: %pixel%, 2, 2
 	Return
 
 GuiLogo:
