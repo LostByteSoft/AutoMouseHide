@@ -1,4 +1,4 @@
-;;--- Head (informations) ---
+;; --- Head (informations) ---
 
 ;;	AHK script
 ;;	Auto move to hide mouse cursor, in the top right corner, after 10 seconds (default) of inactivity.
@@ -6,7 +6,7 @@
 ;;	All files must be in same folder. Where you want.
 ;;	64 bit AHK version : 1.1.24.2 64 bit Unicode
 
-;;--- Softwares options ---
+;; --- Softwares options ---
 
 	SetWorkingDir %A_ScriptDir%
 	#NoEnv
@@ -15,7 +15,7 @@
 
 	SetEnv, title, Move Mouse
 	SetEnv, mode, Auto Move Hide Mouse
-	SetEnv, version, Version 2017-10-14-0905
+	SetEnv, version, Version 2017-10-23-0810
 	SetEnv, Author, LostByteSoft
 	SetEnv, logoicon, ico_AutoMouseHide.ico
 	SetEnv, hidetray, 0
@@ -24,23 +24,24 @@
 	SetEnv, sleep2, 10
 	SetEnv, speed, 10
 	SetEnv, pause, 0
-	SetEnv, pixel, 22					; 19 is under the X button , is you specify lower value info appear, 19 is not enough some times so i put 22.
+	SetEnv, pixel, 22	;; 19 is under the X button , is you specify lower value info may be appear, 19 is not enough some times so i put 22.
 	Sleep -= 3
 
 	FileInstall, ico_AutoMouseHide.ico, ico_AutoMouseHide.ico, 0
-	FileInstall, ico_shut.ico, ico_shut.ico, 0
-	FileInstall, ico_pause.ico, ico_pause.ico, 0
+	FileInstall, ico_debug.ico, ico_debug.ico, 0
 	FileInstall, ico_lock.ico, ico_lock.ico, 0
 	FileInstall, ico_options.ico, ico_options.ico, 0
+	FileInstall, ico_pause.ico, ico_pause.ico, 0
 	FileInstall, ico_reboot.ico, ico_reboot.ico, 0
+	FileInstall, ico_shut.ico, ico_shut.ico, 0
 
-;;--- Tray options ---
+;; --- Tray options ---
 
 	Menu, Tray, NoStandard
 	Menu, tray, add, ---=== %title% ===---, about
 	Menu, Tray, Icon, ---=== %title% ===---, %logoicon%
 	Menu, tray, add, Show logo, GuiLogo
-	Menu, tray, add, Secret MsgBox, secret			; Secret MsgBox, just show all options and variables of the program
+	Menu, tray, add, Secret MsgBox, secret				; Secret MsgBox, just show all options and variables of the program
 	Menu, Tray, Icon, Secret MsgBox, ico_lock.ico
 	Menu, tray, add, About && ReadMe, author
 	Menu, Tray, Icon, About && ReadMe, ico_about.ico
@@ -49,24 +50,30 @@
 	Menu, tray, add, %version%, about
 	menu, tray, disable, %version%
 	Menu, tray, add,
-	Menu, tray, add, Exit, Close				; Close exit program
-	Menu, Tray, Icon, Exit, ico_shut.ico
-	Menu, tray, add, Refresh, doReload				; Reload the script. Usefull if you change something in configuration
-	Menu, Tray, Icon, Refresh, ico_reboot.ico
-	Menu, tray, add, Set Debug mode (Toggle), debug
+	Menu, tray, add, --== Control ==--, about
+	Menu, Tray, Icon, --== Control ==--, ico_options.ico
+	Menu, tray, add, Exit %title%, Close				; Close exit program
+	Menu, Tray, Icon, Exit %title%, ico_shut.ico
+	Menu, tray, add, Refresh (ini mod), doReload 			; Reload the script.
+	Menu, Tray, Icon, Refresh (ini mod), ico_reboot.ico
+	Menu, tray, add, Set Debug (Toggle), debug
+	Menu, Tray, Icon, Set Debug (Toggle), ico_debug.ico
+	Menu, tray, add, Pause (Toggle), pause
+	Menu, Tray, Icon, Pause (Toggle), ico_pause.ico
 	Menu, tray, add,
-	Menu, tray, add, --== Option(s) ==--, about
-	Menu, Tray, Icon, --== Option(s) ==--, ico_options.ico
-	Menu, tray, add, Change Time, sleep			; Change wait time
-	Menu, tray, add, Change Speed, speed			; Change move speed
+	Menu, tray, add, --== Options ==--, about
+	Menu, Tray, Icon, --== Options ==--, ico_options.ico
+	Menu, tray, add, Change Time, sleep				; Change wait time
+	Menu, tray, add, Change Speed, speed				; Change move speed
 	Menu, tray, add, Change Pixel, pixel
 	Menu, tray, add, Hide the mouse, hidetray
+	Menu, Tray, Icon, Hide the mouse, %logoicon%
 	Menu, tray, add, Show Time && Speed && Pixel, showinfo		; Show infos
 	Menu, tray, add, Pause script (Toggle), pause
 	Menu, Tray, Icon, Pause script (Toggle), ico_pause.ico
 	Menu, tray, add,
 
-;;--- Software start here ---
+;; --- Software start here ---
 
 loop:
 	SetEnv, hidetray, 0
@@ -130,7 +137,7 @@ hide:
 	sleep, 2000
 	MouseGetPos, MouseX5, MouseY5
 	IfEqual, debug, 1, tooltip, The mouse move. Top right - %pixel%., % mx+25, % my-25, 19
-	IfEqual, hidetray, 1, tooltip, I'm here - %pixel%., % mx+25, % my-25, 19
+	;;IfEqual, hidetray, 1, tooltip, I'm here - %pixel%., % mx+25, % my-25, 19
 	goto, loop
 
 
@@ -160,21 +167,6 @@ speed:
 	SetEnv, speed, %newspeed%
 	goto, loop
 
-pause:
-	Ifequal, pause, 0, goto, paused
-	Ifequal, pause, 1, goto, unpaused
-	Goto, pause
-
-	paused:
-	Menu, Tray, Icon, ico_pause.ico
-	SetEnv, pause, 1
-	goto, loop
-
-	unpaused:	
-	Menu, Tray, Icon, ico_time.ico
-	SetEnv, pause, 0
-	Goto, loop
-
 pixel:
 	InputBox, newpixel, WMC Mouse Hide, Change the pixel to up to screen ? Between 0 to %Mon1Bottom% pixels (Now pixel is %pixel%), , , , , , , 20, Enter number
 		if ErrorLevel
@@ -186,24 +178,41 @@ pixel:
 	SetEnv, pixel, %newpixel%
 	goto, loop
 
+;; --- Pause & debug ---
+
+pause:
+	Ifequal, pause, 0, goto, paused
+	Ifequal, pause, 1, goto, unpaused
+	Goto, pause
+
+	paused:
+	Menu, Tray, Icon, ico_pause.ico
+	SetEnv, pause, 1
+	goto, loop
+
+	unpaused:
+	SetEnv, pause, 0
+	Goto, loop
+
 Debug:
 	IfEqual, debug, 0, goto, enable
 	IfEqual, debug, 1, goto, disable
 
 	enable:
 	SetEnv, debug, 1
+	TrayTip, %title%, Debug mode = 1, 2, 3
 	Goto, loop
 
 	disable:
 	SetEnv, debug, 0
 	Goto, loop
 
-;;--- Quit & Reload ---
+;; --- Quit & Reload ---
 
 Close:
 	ExitApp
 
-; Escape::		; Debug purpose or quit when press esc
+; Escape::					; Debug purpose or quit when press esc.
 	ExitApp
 
 doReload:
@@ -211,10 +220,10 @@ doReload:
 	sleep, 100
 	goto, Close
 
-;;--- Tray Bar (must be at end of file) ---
+;; --- Tray Bar (must be at end of file) ---
 
 secret:
-	SysGet, Mon1, Monitor, 1				; sysget here, just in case resolution change
+	SysGet, Mon1, Monitor, 1		; sysget here, just in case resolution change
 	MouseGetPos, MouseX1, MouseY1
 	MsgBox, 48, %title%,All variables is shown here.`n`nTitle=%title% mode=%mode% version=%version% author=%author% A_WorkingDir=%A_WorkingDir%`n`nSleep=%sleep% speed=%speed% pause=%pause% pixel=%pixel%`n`nMouse is MouseX1=%MouseX1% MouseY1=%MouseY1% and move to %Mon1Right% %pixel%.
 	Return
@@ -241,7 +250,7 @@ GuiLogo:
 	; Gui, Color, 000000
 	return
 
-;;--- End of script ---
+;; --- End of script ---
 ;
 ;            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
 ;   Version 3.14159265358979323846264338327950288419716939937510582
