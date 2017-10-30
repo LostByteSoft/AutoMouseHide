@@ -15,19 +15,20 @@
 
 	SetEnv, title, Move Mouse
 	SetEnv, mode, Auto Move Hide Mouse
-	SetEnv, version, Version 2017-10-23-0822
+	SetEnv, version, Version 2017-10-30-0831
 	SetEnv, Author, LostByteSoft
 	SetEnv, logoicon, ico_AutoMouseHide.ico
 	SetEnv, hidetray, 0
 	SetEnv, debug, 0
 	SetEnv, sleep, 10
-	SetEnv, sleep2, 10
-	SetEnv, speed, 10
+	SetEnv, sleep2, 5
+	SetEnv, speed, 20
 	SetEnv, pause, 0
-	SetEnv, pixel, 22	;; 19 is under the X button , is you specify lower value info may be appear, 19 is not enough some times so i put 22.
+	SetEnv, pixel, 22		;; 19 is under the X button , is you specify lower value info may be appear, 19 is not enough some times so i put 22.
 	Sleep -= 3
 
 	FileInstall, ico_AutoMouseHide.ico, ico_AutoMouseHide.ico, 0
+	FileInstall, ico_about.ico, ico_about.ico, 0
 	FileInstall, ico_debug.ico, ico_debug.ico, 0
 	FileInstall, ico_lock.ico, ico_lock.ico, 0
 	FileInstall, ico_options.ico, ico_options.ico, 0
@@ -76,7 +77,7 @@
 loop:
 	SetEnv, hidetray, 0
 	IfEqual, debug, 1
-			MsgBox, 0, %title%, Loop sleep=%sleep% (default is 10 but Sleep is -3 because timer in script)`n`nVar exist if hide one time`n`tMouseX5=%MouseX5% MouseY5=%MouseY5%, 5
+			MsgBox, 0, %title%, Loop :`n`nsleep=%sleep% (default is 10 but Sleep is -3 because timer in script)`n`nVar exist if hide one time`n`n`tMouseX5=%MouseX5% MouseY5=%MouseY5%, 5
 	SysGet, Mon1, Monitor, 1				; sysget here, just in case resolution change
 	Menu, Tray, Tip, %title% - sleep=%sleep2% - speed=%speed% - pixel=%pixel%
 	IfEqual, pause, 1, Goto, skipicon
@@ -92,7 +93,7 @@ loop:
 Detection:
 	MouseGetPos, MouseX1, MouseY1
 	IfEqual, debug, 1
-			MsgBox, 0, %title%, Detection`n`tMouseX1=%MouseX1% MouseY1=%MouseY1%, 5
+			MsgBox, 0, %title%, Detection :`n`n`tMouseX1=%MouseX1% MouseY1=%MouseY1%, 5
 	sleep, %sleep%000
 	MouseGetPos, MouseX2, MouseY2
 	sleep, 1000
@@ -103,7 +104,7 @@ Detection:
 
 double:
 	IfEqual, debug, 1
-			MsgBox, 0, %title%, Double`n`tMouseX2=%MouseX2% MouseY2=%MouseY2%, 5
+			MsgBox, 0, %title%, Double :`n`tMouseX2=%MouseX2% MouseY2=%MouseY2%, 5
 	sleep, 1000
 	MouseGetPos, MouseX2, MouseY3
 	if ("" MouseY1 = MouseY3)
@@ -115,29 +116,37 @@ hidetray:
 	SetEnv, hidetray, 1
 
 hide:
-	;; Before it hide it check if the mouse is on 0x0 y0 (no mouse) return to loop if no mouse NOT IMPLEMENTED
 	IfEqual, debug, 1
-			MsgBox, 0, %title%, Hide`n`tMouseX1=%MouseX1% MouseY1=%MouseY1% = MouseX2=%MouseX2% MouseY2=%MouseY2% = MouseX2=%MouseX2% MouseY3=%MouseY3%,5
+		MsgBox, 0, %title%, Hide :`n`tMouseX1=%MouseX1% MouseY1=%MouseY1% = MouseX2=%MouseX2% MouseY2=%MouseY2% = MouseX2=%MouseX2% MouseY3=%MouseY3%`n`nEcran 1 Left: %Mon1Left% -- Top: %Mon1Top% -- Right: %Mon1Right% -- Bottom %Mon1Bottom%...,3
+
 	;; Go to right side before go to up. (Some bugs caused by the mouse passing by text in wmc)
-	;; MsgBox, Ecran 1 Left: %Mon1Left% -- Top: %Mon1Top% -- Right: %Mon1Right% -- Bottom %Mon1Bottom%...
+
 	CoordMode, Mouse, Screen
 	SetEnv, RightCenter, %Mon1bottom%
 	RightCenter /=  2
-	SetEnv, sleep2, speed
-	Sleep2 /= 2
-	;; msgbox, Mon1bottom=%Mon1bottom% - rightcenter=%RightCenter% - speed=%speed% - sleep2=%sleep2%
-	IfEqual, pause, 1, Goto, loop
-	IfEqual, debug, 1, tooltip, The mouse move. Follow Me., % mx+25, % my-25, 19
-	MouseMove, %Mon1Right%, %RightCenter%, %speed%		; 19 is under the X button , is you specify lower value some info can by appear, 19 is not enough some times.
-	sleep, %sleep2%000
-	IfEqual, debug, 1, tooltip, The mouse move. Right center., % mx+25, % my-25, 19
-	MouseMove, %Mon1Right%, %pixel%, 2
-	sleep, 2000
-	MouseGetPos, MouseX5, MouseY5
-	IfEqual, debug, 1, tooltip, The mouse move. Top right - %pixel%., % mx+25, % my-25, 19
-	;;IfEqual, hidetray, 1, tooltip, I'm here - %pixel%., % mx+25, % my-25, 19
-	goto, loop
 
+	IfEqual, pause, 1, Goto, loop
+	IfEqual, debug, 1, tooltip, The mouse will move (msg 1). Follow Me., % mx+25, % my-25, 19
+
+	SetEnv, Mon1Right1, %Mon1Right%
+	Mon1Right1 -= 15
+
+	IfEqual, debug, 1
+		MsgBox, 0, %title%, Hide :`n`tMon1Right=%Mon1Right%, 3
+
+
+	MouseMove, %Mon1Right1%, %RightCenter%, %speed%
+	IfEqual, debug, 1, tooltip, The mouse has move (msg 2). Right center minus 15 px., % mx+25, % my-25, 19
+
+	sleep, %sleep2%000
+
+	MouseMove, %Mon1Right%, %pixel%, 15				; 19 (var pixel) is under the X button , is you specify lower value some info can by appear, 19 is not enough some times.
+	sleep, 2000
+
+	IfEqual, debug, 1, tooltip, The mouse stop moving (msg 3). Top right - %pixel%., % mx+25, % my-25, 19
+
+	MouseGetPos, MouseX5, MouseY5
+	goto, loop
 
 ; --- Options ---
 
@@ -150,7 +159,7 @@ sleep:
 	IfLess, newtime, 3, Goto, sleep
 	IfGreater, newtime, 240, Goto, sleep
 	SetEnv, sleep, %newtime%
-	SetEnv, sleep2, %newtime%
+	;;SetEnv, sleep2, %newtime%
 	Sleep -= 3
 	goto, loop
 
@@ -231,7 +240,7 @@ about:
 	Return
 
 author:
-	MsgBox, 64, %title%, %title% %mode% %version% %author%. This software is usefull to auto move the mouse somewhere is not visible (Right top corner -%pixel% px).In pause mode all the script is running exect doesn't move the mouse.`n`n`tGo to https://github.com/LostByteSoft
+	MsgBox, 64, %title%, %title% %mode% %version% %author%. This software is usefull to auto move the mouse somewhere is not visible (Right top corner -%pixel% px). Is usefull for use with WMC with no mouse, WMC with no mouse the mouse is resting in center screen. In pause mode all the script is running exect doesn't move the mouse.`n`n`tGo to https://github.com/LostByteSoft
 	Return
 
 version:
