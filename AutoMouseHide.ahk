@@ -5,6 +5,8 @@
 ;;	Compatibility: Windows
 ;;	All files must be in same folder. Where you want.
 ;;	64 bit AHK version : 1.1.24.2 64 bit Unicode
+;;	THis thimg have A LOT of detection mouse cursor move for reliability
+;;	and if the mouse mouve somewhere in the processus it will not move again.
 
 ;; --- Softwares options ---
 
@@ -15,13 +17,13 @@
 
 	SetEnv, title, Move Mouse
 	SetEnv, mode, Auto Move Hide Mouse
-	SetEnv, version, Version 2017-10-30-0831
+	SetEnv, version, Version 2017-10-30-1829
 	SetEnv, Author, LostByteSoft
 	SetEnv, logoicon, ico_AutoMouseHide.ico
 	SetEnv, hidetray, 0
 	SetEnv, debug, 0
 	SetEnv, sleep, 10
-	SetEnv, sleep2, 5
+	SetEnv, sleep2, 2		;; time between the two move
 	SetEnv, speed, 20
 	SetEnv, pause, 0
 	SetEnv, pixel, 22		;; 19 is under the X button , is you specify lower value info may be appear, 19 is not enough some times so i put 22.
@@ -77,7 +79,7 @@
 loop:
 	SetEnv, hidetray, 0
 	IfEqual, debug, 1
-			MsgBox, 0, %title%, Loop :`n`nsleep=%sleep% (default is 10 but Sleep is -3 because timer in script)`n`nVar exist if hide one time`n`n`tMouseX5=%MouseX5% MouseY5=%MouseY5%, 5
+			MsgBox, 0, %title%, Loop :`n`nsleep=%sleep% (default is 10 but Sleep is -3 because timer in script)`n`nVar exist if hide one time`n`n`tMouseX5=%MouseX5% MouseY5=%MouseY5%, 3
 	SysGet, Mon1, Monitor, 1				; sysget here, just in case resolution change
 	Menu, Tray, Tip, %title% - sleep=%sleep2% - speed=%speed% - pixel=%pixel%
 	IfEqual, pause, 1, Goto, skipicon
@@ -93,7 +95,7 @@ loop:
 Detection:
 	MouseGetPos, MouseX1, MouseY1
 	IfEqual, debug, 1
-			MsgBox, 0, %title%, Detection :`n`n`tMouseX1=%MouseX1% MouseY1=%MouseY1%, 5
+			MsgBox, 0, %title%, Detection :`n`n`tMouseX1=%MouseX1% MouseY1=%MouseY1%, 3
 	sleep, %sleep%000
 	MouseGetPos, MouseX2, MouseY2
 	sleep, 1000
@@ -104,7 +106,7 @@ Detection:
 
 double:
 	IfEqual, debug, 1
-			MsgBox, 0, %title%, Double :`n`tMouseX2=%MouseX2% MouseY2=%MouseY2%, 5
+			MsgBox, 0, %title%, Double :`n`tMouseX2=%MouseX2% MouseY2=%MouseY2%, 3
 	sleep, 1000
 	MouseGetPos, MouseX2, MouseY3
 	if ("" MouseY1 = MouseY3)
@@ -120,31 +122,30 @@ hide:
 		MsgBox, 0, %title%, Hide :`n`tMouseX1=%MouseX1% MouseY1=%MouseY1% = MouseX2=%MouseX2% MouseY2=%MouseY2% = MouseX2=%MouseX2% MouseY3=%MouseY3%`n`nEcran 1 Left: %Mon1Left% -- Top: %Mon1Top% -- Right: %Mon1Right% -- Bottom %Mon1Bottom%...,3
 
 	;; Go to right side before go to up. (Some bugs caused by the mouse passing by text in wmc)
-
 	CoordMode, Mouse, Screen
 	SetEnv, RightCenter, %Mon1bottom%
 	RightCenter /=  2
-
 	IfEqual, pause, 1, Goto, loop
 	IfEqual, debug, 1, tooltip, The mouse will move (msg 1). Follow Me., % mx+25, % my-25, 19
-
 	SetEnv, Mon1Right1, %Mon1Right%
 	Mon1Right1 -= 15
-
-	IfEqual, debug, 1
-		MsgBox, 0, %title%, Hide :`n`tMon1Right=%Mon1Right%, 3
-
-
+	IfEqual, debug, 1, tooltip, The mouse move (msg 1). tMon1Right=%Mon1Right%., % mx+25, % my-25, 19
 	MouseMove, %Mon1Right1%, %RightCenter%, %speed%
-	IfEqual, debug, 1, tooltip, The mouse has move (msg 2). Right center minus 15 px., % mx+25, % my-25, 19
+	IfEqual, debug, 1, tooltip, The mouse has move (msg 3). Right center minus 15 px., % mx+25, % my-25, 19
+Triple:
+	MouseGetPos, MouseX10, MouseY10
+	IfEqual, debug, 1, tooltip, The mouse is right (msg 4). Right - %Mon1Right1%., % mx+25, % my-25, 19
+	sleep, %sleep%000			;; time to wait between moves
+	MouseGetPos, MouseX20, MouseY20
+	if ("" MouseX10 = MouseX20)
+		goto, MovetoHide
+	else
+		goto, loop
 
-	sleep, %sleep2%000
-
+MovetoHide:
 	MouseMove, %Mon1Right%, %pixel%, 15				; 19 (var pixel) is under the X button , is you specify lower value some info can by appear, 19 is not enough some times.
-	sleep, 2000
-
-	IfEqual, debug, 1, tooltip, The mouse stop moving (msg 3). Top right - %pixel%., % mx+25, % my-25, 19
-
+	sleep, 3000
+	IfEqual, debug, 1, tooltip, The mouse stop moving (msg 5). Top right - %pixel%., % mx+25, % my-25, 19
 	MouseGetPos, MouseX5, MouseY5
 	goto, loop
 
