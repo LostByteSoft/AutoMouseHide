@@ -17,62 +17,63 @@
 
 	SetEnv, title, Move Mouse
 	SetEnv, mode, Auto Move Hide Mouse
-	SetEnv, version, Version 2017-10-30-1829
+	SetEnv, version, Version 2017-11-23-1424
 	SetEnv, Author, LostByteSoft
-	SetEnv, logoicon, ico_AutoMouseHide.ico
 	SetEnv, hidetray, 0
 	SetEnv, debug, 0
 	SetEnv, sleep, 10
-	SetEnv, sleep2, 2		;; time between the two move
+	SetEnv, sleep2, 1		;; time between the two moves.
 	SetEnv, speed, 20
 	SetEnv, pause, 0
 	SetEnv, pixel, 22		;; 19 is under the X button , is you specify lower value info may be appear, 19 is not enough some times so i put 22.
 	Sleep -= 3
+	SetEnv, icofolder, C:\Program Files\Common Files
+	SetEnv, logoicon, ico_AutoMouseHide.ico
 
-	FileInstall, ico_AutoMouseHide.ico, ico_AutoMouseHide.ico, 0
-	FileInstall, ico_about.ico, ico_about.ico, 0
-	FileInstall, ico_debug.ico, ico_debug.ico, 0
-	FileInstall, ico_lock.ico, ico_lock.ico, 0
-	FileInstall, ico_options.ico, ico_options.ico, 0
-	FileInstall, ico_pause.ico, ico_pause.ico, 0
-	FileInstall, ico_reboot.ico, ico_reboot.ico, 0
-	FileInstall, ico_shut.ico, ico_shut.ico, 0
+	FileInstall, ico_AutoMouseHide.ico, %icofolder%\ico_AutoMouseHide.ico, 0
+	FileInstall, ico_about.ico, %icofolder%\ico_about.ico, 0
+	FileInstall, ico_debug.ico, %icofolder%\ico_debug.ico, 0
+	FileInstall, ico_lock.ico, %icofolder%\ico_lock.ico, 0
+	FileInstall, ico_options.ico, %icofolder%\ico_options.ico, 0
+	FileInstall, ico_pause.ico, %icofolder%\ico_pause.ico, 0
+	FileInstall, ico_reboot.ico, %icofolder%\ico_reboot.ico, 0
+	FileInstall, ico_shut.ico, %icofolder%\ico_shut.ico, 0
 
 ;; --- Tray options ---
 
 	Menu, Tray, NoStandard
 	Menu, tray, add, ---=== %title% ===---, about
-	Menu, Tray, Icon, ---=== %title% ===---, %logoicon%
+	Menu, Tray, Icon, ---=== %title% ===---, %icofolder%\%logoicon%
 	Menu, tray, add, Show logo, GuiLogo
 	Menu, tray, add, Secret MsgBox, secret				; Secret MsgBox, just show all options and variables of the program
-	Menu, Tray, Icon, Secret MsgBox, ico_lock.ico
+	Menu, Tray, Icon, Secret MsgBox, %icofolder%\ico_lock.ico
 	Menu, tray, add, About && ReadMe, author
-	Menu, Tray, Icon, About && ReadMe, ico_about.ico
+	Menu, Tray, Icon, About && ReadMe, %icofolder%\ico_about.ico
 	Menu, tray, add, Author %author%, about
 	menu, tray, disable, Author %author%
 	Menu, tray, add, %version%, about
 	menu, tray, disable, %version%
 	Menu, tray, add,
 	Menu, tray, add, --== Control ==--, about
-	Menu, Tray, Icon, --== Control ==--, ico_options.ico
+	Menu, Tray, Icon, --== Control ==--, %icofolder%\ico_options.ico
 	Menu, tray, add, Exit %title%, Close				; Close exit program
-	Menu, Tray, Icon, Exit %title%, ico_shut.ico
+	Menu, Tray, Icon, Exit %title%, %icofolder%\ico_shut.ico
 	Menu, tray, add, Refresh (ini mod), doReload 			; Reload the script.
-	Menu, Tray, Icon, Refresh (ini mod), ico_reboot.ico
+	Menu, Tray, Icon, Refresh (ini mod), %icofolder%\ico_reboot.ico
 	Menu, tray, add, Set Debug (Toggle), debug
-	Menu, Tray, Icon, Set Debug (Toggle), ico_debug.ico
+	Menu, Tray, Icon, Set Debug (Toggle), %icofolder%\ico_debug.ico
 	Menu, tray, add, Pause (Toggle), pause
-	Menu, Tray, Icon, Pause (Toggle), ico_pause.ico
+	Menu, Tray, Icon, Pause (Toggle), %icofolder%\ico_pause.ico
 	Menu, tray, add,
 	Menu, tray, add, --== Options ==--, about
-	Menu, Tray, Icon, --== Options ==--, ico_options.ico
+	Menu, Tray, Icon, --== Options ==--, %icofolder%\ico_options.ico
 	Menu, tray, add, Change Time, sleep				; Change wait time
 	Menu, tray, add, Change Speed, speed				; Change move speed
 	Menu, tray, add, Change Pixel, pixel
 	Menu, tray, add, Show Time && Speed && Pixel, showinfo		; Show infos
 	Menu, tray, add,
 	Menu, tray, add, Hide the mouse, hidetray
-	Menu, Tray, Icon, Hide the mouse, %logoicon%
+	Menu, Tray, Icon, Hide the mouse, %icofolder%\%logoicon%
 
 ;; --- Software start here ---
 
@@ -83,7 +84,7 @@ loop:
 	SysGet, Mon1, Monitor, 1				; sysget here, just in case resolution change
 	Menu, Tray, Tip, %title% - sleep=%sleep2% - speed=%speed% - pixel=%pixel%
 	IfEqual, pause, 1, Goto, skipicon
-	Menu, Tray, Icon, ico_AutoMouseHide.ico
+	Menu, Tray, Icon, %icofolder%\ico_AutoMouseHide.ico
 	skipicon:
 	MouseGetPos, MouseX4, MouseY4
 	sleep, 1000
@@ -119,12 +120,12 @@ hidetray:
 
 hide:
 	IfEqual, debug, 1
-		MsgBox, 0, %title%, Hide :`n`tMouseX1=%MouseX1% MouseY1=%MouseY1% = MouseX2=%MouseX2% MouseY2=%MouseY2% = MouseX2=%MouseX2% MouseY3=%MouseY3%`n`nEcran 1 Left: %Mon1Left% -- Top: %Mon1Top% -- Right: %Mon1Right% -- Bottom %Mon1Bottom%...,3
+		MsgBox, 0, %title%, Hide :`n`tMouseX1=%MouseX1% MouseY1=%MouseY1%`n`nMouseX2=%MouseX2% MouseY2=%MouseY2%`n`nMouseX2=%MouseX2% MouseY3=%MouseY3%`n`nEcran 1 Left: %Mon1Left% -- Top: %Mon1Top% -- Right: %Mon1Right% -- Bottom %Mon1Bottom%...,3
 
 	;; Go to right side before go to up. (Some bugs caused by the mouse passing by text in wmc)
 	CoordMode, Mouse, Screen
 	SetEnv, RightCenter, %Mon1bottom%
-	RightCenter /=  2
+	RightCenter /=  3
 	IfEqual, pause, 1, Goto, loop
 	IfEqual, debug, 1, tooltip, The mouse will move (msg 1). Follow Me., % mx+25, % my-25, 19
 	SetEnv, Mon1Right1, %Mon1Right%
@@ -135,7 +136,7 @@ hide:
 Triple:
 	MouseGetPos, MouseX10, MouseY10
 	IfEqual, debug, 1, tooltip, The mouse is right (msg 4). Right - %Mon1Right1%., % mx+25, % my-25, 19
-	sleep, %sleep%000			;; time to wait between moves
+	sleep, %sleep2%000			;; time to wait between moves
 	MouseGetPos, MouseX20, MouseY20
 	if ("" MouseX10 = MouseX20)
 		goto, MovetoHide
@@ -194,7 +195,7 @@ pause:
 	Goto, pause
 
 	paused:
-	Menu, Tray, Icon, ico_pause.ico
+	Menu, Tray, Icon, %icofolder%\ico_pause.ico
 	SetEnv, pause, 1
 	goto, loop
 
@@ -253,9 +254,14 @@ showinfo:
 	Return
 
 GuiLogo:
-	Gui, Add, Picture, x25 y25 w400 h400 , %logoicon%
-	Gui, Show, w450 h450, %title% Logo
-	; Gui, Color, 000000
+	Gui, 4:Add, Picture, x25 y25 w400 h400, %icofolder%\%logoicon%
+	Gui, 4:Show, w450 h450, %title% Logo
+	;;Gui, 4:Color, 000000
+	Sleep, 500
+	Return
+
+	4GuiClose:
+	Gui 4:Cancel
 	return
 
 ;; --- End of script ---
