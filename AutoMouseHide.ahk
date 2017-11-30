@@ -30,14 +30,20 @@
 	SetEnv, icofolder, C:\Program Files\Common Files
 	SetEnv, logoicon, ico_AutoMouseHide.ico
 
+	;; specific files
+
 	FileInstall, ico_AutoMouseHide.ico, %icofolder%\ico_AutoMouseHide.ico, 0
+
+	;; Common ico
+
 	FileInstall, ico_about.ico, %icofolder%\ico_about.ico, 0
-	FileInstall, ico_debug.ico, %icofolder%\ico_debug.ico, 0
 	FileInstall, ico_lock.ico, %icofolder%\ico_lock.ico, 0
+	FileInstall, ico_shut.ico, %icofolder%\ico_shut.ico, 0
 	FileInstall, ico_options.ico, %icofolder%\ico_options.ico, 0
-	FileInstall, ico_pause.ico, %icofolder%\ico_pause.ico, 0
 	FileInstall, ico_reboot.ico, %icofolder%\ico_reboot.ico, 0
 	FileInstall, ico_shut.ico, %icofolder%\ico_shut.ico, 0
+	FileInstall, ico_debug.ico, %icofolder%\ico_debug.ico, 0
+	FileInstall, ico_HotKeys.ico, %icofolder%\ico_HotKeys.ico, 0
 
 ;; --- Tray options ---
 
