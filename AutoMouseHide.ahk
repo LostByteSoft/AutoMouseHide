@@ -14,10 +14,11 @@
 	#NoEnv
 	#SingleInstance Force
 	#Persistent
+	SysGet, Mon1, Monitor, 1
 
 	SetEnv, title, Move Mouse
 	SetEnv, mode, Auto Move Hide Mouse
-	SetEnv, version, Version 2017-11-23-1424
+	SetEnv, version, Version 2023-02-04
 	SetEnv, Author, LostByteSoft
 	SetEnv, hidetray, 0
 	SetEnv, debug, 0
@@ -27,8 +28,9 @@
 	SetEnv, pause, 0
 	SetEnv, pixel, 22		;; 19 is under the X button , is you specify lower value info may be appear, 19 is not enough some times so i put 22.
 	Sleep -= 3
-	SetEnv, icofolder, C:\Program Files\Common Files
+	SetEnv, icofolder, %A_AppData%
 	SetEnv, logoicon, ico_AutoMouseHide.ico
+	SetEnv, comp, w7 w8 w8.1 w10 w11 (x64)
 
 	;; specific files
 
@@ -73,10 +75,10 @@
 	Menu, tray, add,
 	Menu, tray, add, --== Options ==--, about
 	Menu, Tray, Icon, --== Options ==--, %icofolder%\ico_options.ico
-	Menu, tray, add, Change Time, sleep				; Change wait time
+	Menu, tray, add, Change Time, sleep					; Change wait time
 	Menu, tray, add, Change Speed, speed				; Change move speed
 	Menu, tray, add, Change Pixel, pixel
-	Menu, tray, add, Show Time && Speed && Pixel, showinfo		; Show infos
+	Menu, tray, add, Show Time && Speed && Pixel, showinfo	; Show infos
 	Menu, tray, add,
 	Menu, tray, add, Hide the mouse, hidetray
 	Menu, Tray, Icon, Hide the mouse, %icofolder%\%logoicon%
@@ -123,6 +125,8 @@ double:
 
 hidetray:
 	SetEnv, hidetray, 1
+	tooltip, The mouse is right (msg 6). Right - %Mon1Right%, % mx+25, % my-25
+	goto, hide
 
 hide:
 	IfEqual, debug, 1
@@ -150,7 +154,7 @@ Triple:
 		goto, loop
 
 MovetoHide:
-	MouseMove, %Mon1Right%, %pixel%, 15				; 19 (var pixel) is under the X button , is you specify lower value some info can by appear, 19 is not enough some times.
+	MouseMove, %Mon1Right%, %pixel%, 15			; 19 (var pixel) is under the X button , is you specify lower value some info can by appear, 19 is not enough some times.
 	sleep, 3000
 	IfEqual, debug, 1, tooltip, The mouse stop moving (msg 5). Top right - %pixel%., % mx+25, % my-25, 19
 	MouseGetPos, MouseX5, MouseY5
@@ -256,7 +260,7 @@ version:
 	Return
 
 showinfo:
-	TrayTip, %title%, Time: %sleep% Speed: %speed% Pixel: %pixel%, 2, 2
+	MsgBox, 64, %title%, Time: %sleep% Speed: %speed% Pixel: %pixel% ;;; , 2, 2
 	Return
 
 GuiLogo:
