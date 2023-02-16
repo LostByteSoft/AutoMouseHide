@@ -2,32 +2,37 @@
 
 Auto move to hide mouse cursor, in the top right corner, after 10 seconds (default) of inactivity.
 
-This software goes in the system tray. It wait to you stop moving the mouse for 10 seconds (ajustable).
-The mouse cursor goes hiding in top corner right. When you move the mouse again the cursor will reappear where you left it (Not working in w11).
+  This software goes in the system tray. It wait to you stop moving the mouse for 10 seconds (ajustable).
+  The mouse cursor goes hiding in top corner right. When you move the mouse again the cursor will reappear where you left it (Not working in w11).
   
-Simple thing. Can helpful on multimedia station. The cursor don't rest in the middle of the screen when you watch video file.
+  Simple thing. Can helpful on multimedia station. The cursor don't rest in the middle of the screen when you watch video file.
+  
+	AutoMouseHide_w7.exe for windows 7 x64
 
-Version 2023-02-04
+	AutoMouseHide.exe for others
 
--Windows 11 x64 compatible
-
-Files and Use
+Versions
 --------------------------------------------------------------------
+2023-02-16 Update readme file
+2023-02-04 Windows 11 x64 compatible
 
-AutoMouseHide_w7.exe for windows 7 x64
+Compatibility
+--------------------------------------------------------------------
+Windows 7 x64
+Windows 8 x64
+Windows 8.1 x64
+Windows 10 x64
+Windows 11 x64
+Windows Server x64
 
-AutoMouseHide.exe for windows 10 x64 and 11 x64
-  
 Options
 --------------------------------------------------------------------
-
 There are not really options.
-
 
 Menu Tray
 --------------------------------------------------------------------
 The menu is in the tray ! There are no more menu anywhere.
- 
+
 Licence of use
 --------------------------------------------------------------------
 
